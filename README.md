@@ -13,8 +13,9 @@ Les formats utilisés sont le .txt pour les listes, le .md pour tout autre docum
 ### Formatage des listes :
 
 - Un élément par ligne
-- chaque élément comprend : PLACEDEMARCHE:TIKER. Exempel : BITFINEX:BTCUSD
-- chaque ligne se termine par une virgule, sauf la dernière <- pour permettre l'import dans tradingview
+- Chaque élément comprend : PLACEDEMARCHE:TIKER. Exempel : BITFINEX:BTCUSD
+- Chaque ligne se termine par une virgule, sauf la dernière <- pour permettre l'import dans tradingview
+- Les listes sont ordonnées par ordre alphabétique
 
 ### Formatage de la documentation :
 
