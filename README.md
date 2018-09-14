@@ -6,7 +6,7 @@ Pour soumettre des modifications forkez et faites un pull request, si je vous ai
 
 ## Organisation du répertoire :
 
-Chaque dossier représente un type d'actif (cryptos, actions, ...) et peut être organisé en sous dossier pour faciliter la lisbilité des informations.
+Chaque dossier représente un type d'actif (cryptos, actions, ...) et peut être organisé en sous dossier pour faciliter la lisibilité des informations.
 
 Les formats utilisés sont le .txt pour les listes, le .md pour tout autre documentation. Une documentation quand à la syntaxe du markdown se trouve [ici](https://blog.wax-o.com/2014/04/tutoriel-un-guide-pour-bien-commencer-avec-markdown/). L'intérêt c'est que c'est du noob proof en plus d'être facilement lisible
 
