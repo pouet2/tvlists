@@ -1,0 +1,2 @@
+AMEX:VNQ,
+AMEX:SCHH
