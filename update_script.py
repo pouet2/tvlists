@@ -14,7 +14,11 @@ class market_lists_updater():
                                 'bittrex' : 'https://api.bittrex.com/api/v1.1/public/getmarkets',
                                 'binance' : 'https://api.binance.com/api/v1/exchangeInfo',
                                 'bitfinex': 'https://api-pub.bitfinex.com/v2/tickers?symbols=ALL',
-                                'kraken'  : 'https://api.kraken.com/0/public/AssetPairs'}
+                                'kraken'  : 'https://api.kraken.com/0/public/AssetPairs',
+                                'bitstamp': 'https://www.bitstamp.net/api/v2/trading-pairs-info/',
+                                'okcoin'  : 'https://www.okcoin.com/api/spot/v3/instruments/',
+                                'coinbase': 'https://api.pro.coinbase.com/products',
+                                'bitmex'  : 'https://bitmex.com/api/v1/instrument/active'} 
 
     def req_marketplace(self, marketplace):
         """Make request to the selected marketplace.
@@ -98,28 +102,23 @@ class market_lists_updater():
         all_pairs = []
         for pair in api_json:
             if pair[:3] == 'BTC':
-                pair = pair.replace('BTC_', marketplace.upper() + ':')
-                pair += 'BTC'
+                pair = pair.replace('BTC_', marketplace.upper() + ':') + 'BTC'
                 btc_pairs.append(pair)
                 continue
             if pair[:3] == 'ETH':
-                pair = pair.replace('ETH_', marketplace.upper() + ':')
-                pair += 'ETH'
+                pair = pair.replace('ETH_', marketplace.upper() + ':') + 'ETH'
                 eth_pairs.append(pair)
                 continue
             if pair[:4] == 'USDC':
-                pair = pair.replace('USDC_', marketplace.upper() + ':')
-                pair += 'USDC'
+                pair = pair.replace('USDC_', marketplace.upper() + ':') + 'USDC'
                 usdc_pairs.append(pair)
                 continue
             if pair[:4] == 'USDT':
-                pair = pair.replace('USDT_', marketplace.upper() + ':')
-                pair += 'USDT'
+                pair = pair.replace('USDT_', marketplace.upper() + ':') + 'USDT'
                 usdt_pairs.append(pair)
                 continue
             if pair[:3] == 'XMR':
-                pair = pair.replace('XMR_', marketplace.upper() + ':')
-                pair += 'XMR'
+                pair = pair.replace('XMR_', marketplace.upper() + ':') + 'XMR'
                 xmr_pairs.append(pair)
                 continue
         btc_pairs.sort()
@@ -146,23 +145,19 @@ class market_lists_updater():
         for obj in markets_dict:
             pair = obj['MarketName']
             if pair[:3] == 'BTC':
-                pair = pair.replace('BTC-', marketplace.upper() + ':')
-                pair += 'BTC'
+                pair = pair.replace('BTC-', marketplace.upper() + ':') + 'BTC'
                 btc_pairs.append(pair)
                 continue
             if pair[:3] == 'ETH':
-                pair = pair.replace('ETH-', marketplace.upper() + ':')
-                pair += 'ETH'
+                pair = pair.replace('ETH-', marketplace.upper() + ':') + 'ETH'
                 eth_pairs.append(pair)
                 continue
             if pair[:4] == 'USDT':
-                pair = pair.replace('USDT-', marketplace.upper() + ':')
-                pair += 'USDT'
+                pair = pair.replace('USDT-', marketplace.upper() + ':') + 'USDT'
                 usdt_pairs.append(pair)
                 continue
             if pair[:3] == 'USD':
-                pair = pair.replace('USD-', marketplace.upper() + ':')
-                pair += 'USD'
+                pair = pair.replace('USD-', marketplace.upper() + ':') + 'USD'
                 usd_pairs.append(pair)
                 continue
         btc_pairs.sort()
@@ -355,6 +350,125 @@ class market_lists_updater():
         self.new_pairs_list = all_pairs
         file_path = self.construct_file_path(marketplace, 'yes')
         self.compare_pairs_list(marketplace, file_path, self.new_pairs_list)
+
+    def bitstamp(self, marketplace, api_json):
+        """Construct an ordered list of pairs for bitstamp marketplace
+           then compare it.
+           api_json : json, non ordered list from marketplace.
+           return : list, ordered list of pairs from marketplace api.
+        """
+        btc_pairs = []
+        eur_pairs = []
+        usd_pairs = []
+        all_pairs = []
+        for obj in api_json:
+            pair = obj['url_symbol']
+            if pair[-3:] == 'btc':
+                pair = marketplace.upper() + ':' + pair.upper()
+                btc_pairs.append(pair)
+                continue
+            if pair[-3:] == 'eur':
+                pair = marketplace.upper() + ':' + pair.upper()
+                eur_pairs.append(pair)
+                continue
+            if pair[-3:] == 'usd':
+                pair = marketplace.upper() + ':' + pair.upper()
+                usd_pairs.append(pair)
+                continue
+        btc_pairs.sort()
+        eur_pairs.sort()
+        usd_pairs.sort()
+        all_pairs = usd_pairs + btc_pairs + eur_pairs
+        #return all_pairs # I wasn't able to return data from exec in main, need to be solved
+        self.new_pairs_list = all_pairs
+
+    def okcoin(self, marketplace, api_json):
+        """Construct an ordered list of pairs for okcoin marketplace
+           then compare it.
+           api_json : json, non ordered list from marketplace.
+           return : list, ordered list of pairs from marketplace api.
+        """
+        btc_pairs = []
+        eth_pairs = []
+        usd_pairs = []
+        all_pairs = []
+        for obj in api_json:
+            pair = obj['instrument_id']
+            if pair[-3:] == 'BTC':
+                pair = marketplace.upper() + ':' + pair.replace('-', '')
+                btc_pairs.append(pair)
+                continue
+            if pair[-3:] == 'ETH':
+                pair = marketplace.upper() + ':' + pair.replace('-', '')
+                eth_pairs.append(pair)
+                continue
+            if pair[-3:] == 'USD':
+                pair = marketplace.upper() + ':' + pair.replace('-', '')
+                usd_pairs.append(pair)
+                continue
+        btc_pairs.sort()
+        eth_pairs.sort()
+        usd_pairs.sort()
+        all_pairs = usd_pairs + btc_pairs + eth_pairs
+        #return all_pairs # I wasn't able to return data from exec in main, need to be solved
+        self.new_pairs_list = all_pairs
+
+    def coinbase(self, marketplace, api_json):
+        """Construct an ordered list of pairs for coinbase marketplace
+           then compare it.
+           api_json : json, non ordered list from marketplace.
+           return : list, ordered list of pairs from marketplace api.
+        """
+        btc_pairs = []
+        eur_pairs = []
+        gbp_pairs = []
+        usd_pairs = []
+        usdc_pairs = []
+        all_pairs = []
+        for obj in api_json:
+            pair = obj['id']
+            if pair[-3:] == 'BTC':
+                pair = marketplace.upper() + ':' + pair.replace('-', '')
+                btc_pairs.append(pair)
+                continue
+            if pair[-3:] == 'EUR':
+                pair = marketplace.upper() + ':' + pair.replace('-', '')
+                eur_pairs.append(pair)
+                continue
+            if pair[-3:] == 'GBP':
+                pair = marketplace.upper() + ':' + pair.replace('-', '')
+                gbp_pairs.append(pair)
+                continue
+            if pair[-4:] == 'USDC':
+                pair = marketplace.upper() + ':' + pair.replace('-', '')
+                usdc_pairs.append(pair)
+                continue
+            if pair[-3:] == 'USD':
+                pair = marketplace.upper() + ':' + pair.replace('-', '')
+                usd_pairs.append(pair)
+                continue
+        btc_pairs.sort()
+        eur_pairs.sort()
+        gbp_pairs.sort()
+        usd_pairs.sort()
+        usdc_pairs.sort()
+        all_pairs = usd_pairs + eur_pairs + gbp_pairs + usdc_pairs + btc_pairs
+        #return all_pairs # I wasn't able to return data from exec in main, need to be solved
+        self.new_pairs_list = all_pairs
+
+    def bitmex(self, marketplace, api_json):
+        """Construct an ordered list of pairs for bitmex marketplace
+           then compare it.
+           api_json : json, non ordered list from marketplace.
+           return : list, ordered list of pairs from marketplace api.
+        """
+        all_pairs = []
+        for pair in api_json:
+            pair = marketplace.upper() + ':' + pair['symbol']
+            all_pairs.append(pair)
+        all_pairs.sort()
+        #return all_pairs # I wasn't able to return data from exec in main, need to be solved
+        self.new_pairs_list = all_pairs
 
     def main(self):
         """Call every marketplace functions.
