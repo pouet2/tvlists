@@ -4,6 +4,11 @@ Ce projet a pour but de permettre aux personnes le souhaitant, de partager des l
 
 Pour soumettre des modifications forkez et faites un pull request, si je vous aime bien, je vous ajouterais à la liste des collaborateurs.
 
+## Update_script.py
+
+python3 update_list.py
+Then, enjoy!
+
 ## Organisation du répertoire :
 
 Chaque dossier représente un type d'actif (cryptos, actions, ...) et peut être organisé en sous dossier pour faciliter la lisibilité des informations.
