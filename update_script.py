@@ -60,8 +60,7 @@ class market_lists_updater():
             return
         old_pairs = self.read_file(file_path)
         if pairs != old_pairs:
-            print('Pairs for this marketplace are not the same as you have \
-                   in your old list.')
+            print('Pairs for this marketplace are not the same as you have in your old list.')
             self.write_file(file_path, pairs)
         else:
             print('No change needed for ' + marketplace + ' list.')
@@ -102,15 +101,15 @@ class market_lists_updater():
         all_pairs = []
         markets_dict = self.req_marketplace(marketplace)
         for pair in markets_dict:
-            if pair[:3] == 'ETH':
-                pair = pair.replace('ETH_', marketplace.upper() + ':')
-                pair += 'ETH'
-                eth_pairs.append(pair)
-                continue
             if pair[:3] == 'BTC':
                 pair = pair.replace('BTC_', marketplace.upper() + ':')
                 pair += 'BTC'
                 btc_pairs.append(pair)
+                continue
+            if pair[:3] == 'ETH':
+                pair = pair.replace('ETH_', marketplace.upper() + ':')
+                pair += 'ETH'
+                eth_pairs.append(pair)
                 continue
             if pair[:4] == 'USDC':
                 pair = pair.replace('USDC_', marketplace.upper() + ':')
@@ -144,32 +143,32 @@ class market_lists_updater():
         btc_pairs = []
         usd_pairs = []
         usdt_pairs = []
-        xmr_pairs = []
         all_pairs = []
         markets_resp = self.req_marketplace(marketplace)
         markets_dict = markets_resp['result']
         for obj in markets_dict:
             pair = obj['MarketName']
-            if pair[:3] == 'ETH':
-                pair = pair.replace('ETH-', marketplace.upper() + ':')
-                pair += 'ETH'
-                eth_pairs.append(pair)
-                continue
             if pair[:3] == 'BTC':
                 pair = pair.replace('BTC-', marketplace.upper() + ':')
                 pair += 'BTC'
                 btc_pairs.append(pair)
                 continue
-            if pair[:3] == 'USD':
-                pair = pair.replace('USD-', marketplace.upper() + ':')
-                pair += 'USD'
-                usd_pairs.append(pair)
+            if pair[:3] == 'ETH':
+                pair = pair.replace('ETH-', marketplace.upper() + ':')
+                pair += 'ETH'
+                eth_pairs.append(pair)
                 continue
             if pair[:4] == 'USDT':
                 pair = pair.replace('USDT-', marketplace.upper() + ':')
                 pair += 'USDT'
                 usdt_pairs.append(pair)
                 continue
+            if pair[:3] == 'USD':
+                pair = pair.replace('USD-', marketplace.upper() + ':')
+                pair += 'USD'
+                usd_pairs.append(pair)
+                continue
+            
         eth_pairs.sort()
         btc_pairs.sort()
         usd_pairs.sort()
