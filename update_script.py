@@ -10,18 +10,19 @@ class market_lists_updater():
     def __init__(self):
         self.path_root = "cryptos/"
         self.directories_list = os.listdir('cryptos')
-        self.url = {'poloniex': 'https://poloniex.com/public?command=returnTicker',
-                    'bittrex': 'https://api.bittrex.com/api/v1.1/public/getmarkets'}
+        self.new_pairs_list = [] # Ugly but working
+        self.marketplace_obj = {'poloniex': 'https://poloniex.com/public?command=returnTicker',
+                                'bittrex' : 'https://api.bittrex.com/api/v1.1/public/getmarkets'}
 
     def req_marketplace(self, marketplace):
         """Make request to the selected marketplace.
-        marketplace : string, marketplace in url dict.
+        marketplace : string, marketplace in marketplace_obj dict.
         return : json object.
         """
-        if marketplace not in self.url:
-            raise MarketplaceSelectionError("The marketplace you ask don't exist in self.url.")
+        if marketplace not in self.marketplace_obj:
+            raise MarketplaceSelectionError("The marketplace you ask don't exist in self.marketplace_obj.")
         h = httplib2.Http('.cache')
-        header, content = h.request(self.url[marketplace])
+        header, content = h.request(self.marketplace_obj[marketplace])
         data = self.format_response(content)
         return data
 
@@ -60,7 +61,7 @@ class market_lists_updater():
             return
         old_pairs = self.read_file(file_path)
         if pairs != old_pairs:
-            print('Pairs for this marketplace are not the same as you have in your old list.')
+            print('Your local pairs list has been updated for ' + marketplace + '.')
             self.write_file(file_path, pairs)
         else:
             print('No change needed for ' + marketplace + ' list.')
@@ -88,19 +89,19 @@ class market_lists_updater():
                 pairs_file.write(pair + ',\n')
 
 
-    def poloniex(self):
+    def poloniex(self, marketplace, api_json):
         """Construct an ordered list of pairs for poloniex marketplace
            then compare it.
+           api_json : json, non ordered list from marketplace.
+           return : list, ordered list of pairs from marketplace api.
         """
-        marketplace = 'poloniex'
         eth_pairs = []
         btc_pairs = []
         usdc_pairs = []
         usdt_pairs = []
         xmr_pairs = []
         all_pairs = []
-        markets_dict = self.req_marketplace(marketplace)
-        for pair in markets_dict:
+        for pair in api_json:
             if pair[:3] == 'BTC':
                 pair = pair.replace('BTC_', marketplace.upper() + ':')
                 pair += 'BTC'
@@ -132,20 +133,21 @@ class market_lists_updater():
         usdt_pairs.sort()
         xmr_pairs.sort()
         all_pairs = btc_pairs + usdt_pairs + eth_pairs + usdc_pairs + xmr_pairs
-        self.compare_pairs_list(marketplace, all_pairs)
+        #return all_pairs # I wasn't able to return data from exec in main, need to be solved
+        self.new_pairs_list = all_pairs
 
-    def bittrex(self):
+    def bittrex(self, marketplace, api_json):
         """Construct an ordered list of pairs for bittrex marketplace
            then compare it.
+           api_json : json, non ordered list from marketplace.
+           return : list, ordered list of pairs from marketplace api.
         """
-        marketplace = 'bittrex'
         eth_pairs = []
         btc_pairs = []
         usd_pairs = []
         usdt_pairs = []
         all_pairs = []
-        markets_resp = self.req_marketplace(marketplace)
-        markets_dict = markets_resp['result']
+        markets_dict = api_json['result']
         for obj in markets_dict:
             pair = obj['MarketName']
             if pair[:3] == 'BTC':
@@ -168,21 +170,23 @@ class market_lists_updater():
                 pair += 'USD'
                 usd_pairs.append(pair)
                 continue
-            
         eth_pairs.sort()
         btc_pairs.sort()
         usd_pairs.sort()
         usdt_pairs.sort()
         all_pairs = btc_pairs + usdt_pairs + eth_pairs + usd_pairs
-        self.compare_pairs_list(marketplace, all_pairs)
-
+        #return all_pairs # I wasn't able to return data from exec in main, need to be solved
+        self.new_pairs_list = all_pairs
 
     def main(self):
         """Call every marketplace functions.
         """
         print("Lazy market list updater!")
-        #self.poloniex()
-        self.bittrex()
+        for marketplace in self.marketplace_obj:
+            new_list = self.req_marketplace(marketplace)
+            exec('self.' + marketplace + '(marketplace, new_list)')
+            self.compare_pairs_list(marketplace, self.new_pairs_list)
+
         print("Job done.")
 
 updater = market_lists_updater()
