@@ -8,7 +8,6 @@ import os
 class market_lists_updater():
     def __init__(self):
         self.path_root = "cryptos/"
-        self.directories_list = os.listdir('cryptos')
         self.new_pairs_list = [] # Ugly but working
         self.marketplace_obj = {'poloniex': 'https://poloniex.com/public?command=returnTicker',
                                 'bittrex' : 'https://api.bittrex.com/api/v1.1/public/getmarkets',
@@ -19,6 +18,12 @@ class market_lists_updater():
                                 'okcoin'  : 'https://www.okcoin.com/api/spot/v3/instruments/',
                                 'coinbase': 'https://api.pro.coinbase.com/products',
                                 'bitmex'  : 'https://bitmex.com/api/v1/instrument/active'} 
+
+    def root_repository_failsafe(self):
+        path_root = self.path_root.replace('/', '')
+        if 'cryptos' not in os.listdir():
+            os.makedirs('cryptos')
+            print('cryptos directory was missing and has been created')
 
     def req_marketplace(self, marketplace):
         """Make request to the selected marketplace.
@@ -38,7 +43,8 @@ class market_lists_updater():
         marketplace : string, marketplace name.
         return: string, constructed file path.
         """
-        if marketplace not in self.directories_list:
+        directories_list = os.listdir(self.path_root.replace('/', ''))
+        if marketplace not in directories_list:
             os.makedirs(self.path_root + marketplace)
             print('The directory for ' + marketplace + ' has been created.')
         if margin != 'no':
@@ -474,6 +480,7 @@ class market_lists_updater():
         """Call every marketplace functions.
         """
         print("Lazy market list updater!")
+        self.root_repository_failsafe()
         for marketplace in self.marketplace_obj:
             new_list = self.req_marketplace(marketplace)
             exec('self.' + marketplace + '(marketplace, new_list)')
